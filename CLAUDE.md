@@ -1,0 +1,46 @@
+# CLAUDE.md - Deno MCP Template Development Guide
+
+## Build/Development Commands
+
+- **Start the application**: `deno task start`
+- **Development mode**: `deno task dev`
+- **Format, lint, and check code**: `deno task prep`
+- **Format code**: `deno fmt`
+- **Lint code**: `deno lint --fix`
+- **Type-check code**: `deno check main.ts`
+
+## Testing
+
+- **Run all tests**: `deno test`
+- **Run specific test file**: `deno test path/to/test_file.ts`
+- **Run test with filter**: `deno test --filter "test name"`
+
+## Project Structure
+
+- **`main.ts`**: Entry point that handles HTTP requests and MCP protocol
+- **`src/`**: Core MCP server implementation
+- **`static/`**: Static files served by the web server
+- **`vendor/`**: Third-party schema definitions (`vendor/schema.ts` is the official MCP schema)
+- **`test/`**: Test files (create with pattern `*_test.ts`)
+
+## Code Style Guidelines
+
+- **Formatting**: 100 character line width, 2-space indentation, semicolons required, single quotes preferred
+- **Imports**: Use JSR imports (`jsr:`) or npm imports (`npm:`) with explicit paths. ES module style, include `.ts` extension, group imports logically
+- **Types**: Define interfaces for data structures, use explicit return types
+- **Naming**: camelCase for variables/functions, PascalCase for classes/types
+- **Documentation**: JSDoc comments for functions/interfaces with @author, @description tags. JSDoc for public APIs, inline comments for complex logic
+- **Error Handling**: Use try/catch blocks with descriptive error messages. Use TypeScript's strict mode, explicit error checking in tests
+- **TypeScript**: Enable strict mode, noImplicitAny, verbatimModuleSyntax, Strict type checking, ES modules, explicit return types
+- **Structure**: Place core functionality in src/, route handlers in routes/
+- **Deno Standards**: Use Deno KV for storage, follow Deno's security practices
+
+## Best Practices
+
+- **Environment Variables**: Load using `@std/dotenv/load` in the top-level and access with `Deno.env.get()`
+- **File Paths**: Use `@std/path` for cross-platform file path handling
+- **Data Validation**: Use zod schemas for data validation
+- **HTTP Responses**: Return proper status codes and structured JSON responses
+- **Transactions**: Use `kv.atomic()` for Deno KV transactions when updating multiple records
+- **Error Handling**: Provide detailed error messages but avoid exposing sensitive information
+- **Tool Implementation**: Follow the MCP schema for defining tool schemas and handlers
