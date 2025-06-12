@@ -77,22 +77,14 @@ interface MappedRedStoneData {
  * @returns Mapped data with final prices and source breakdown
  */
 export function mapRedStoneData(
-  rawData: RedStoneOracleData,
-  nodeLabel: string = "morpheus-main",
+  rawData: RedStoneOracleData
 ): MappedRedStoneData {
   const result: MappedRedStoneData = {};
 
   // Iterate through each data feed (e.g., "AAVE", "ACRED_FUNDAMENTAL")
   for (const [dataFeedId, dataPackages] of Object.entries(rawData)) {
     // Find the data package for the specified node
-    const nodePackage = dataPackages.find(
-      (pkg) => pkg.dataPoints[0]?.metadata.nodeLabel === nodeLabel,
-    );
-
-    if (!nodePackage || nodePackage.dataPoints.length === 0) {
-      console.warn(`No data found for ${dataFeedId} with node ${nodeLabel}`);
-      continue;
-    }
+    const nodePackage = dataPackages[0]!;
 
     const dataPoint = nodePackage.dataPoints[0]!;
     const metadata = dataPoint.metadata;
