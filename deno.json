@@ -1,15 +1,15 @@
 {
-    "name": "@phughesmcr/deno-mcp-template",
-    "version": "0.2.3",
+    "name": "@ppedziwiatr/redstone-mcp",
+    "version": "0.0.1",
     "license": "MIT",
     "exports": "./main.ts",
-    "description": "A demo package for MCP servers in Deno",
-    "keywords": ["demo", "deno", "mcp", "template", "ai", "agent", "llm"],
-    "homepage": "https://github.com/phughesmcr/deno-mcp-template",
+    "description": "An MCP server that integrates with RedStone Oracle data",
+    "keywords": ["deno", "mcp", "ai", "agent", "llm", "redstone", "oracle", "crypto", "blockchain", "redpill"],
+    "homepage": "https://github.com/ppedziwiatr/redstone-mcp",
     "bugs": {
-        "url": "https://github.com/phughesmcr/deno-mcp-template/issues"
+        "url": "https://github.com/ppedziwiatr/redstone-mcp/issues"
     },
-    "author": "P. Hughes <github@phugh.es>",
+    "author": "just_ppe",
     "repository": {
         "type": "git",
         "url": "git+https://github.com/phughesmcr/deno-mcp-template.git"

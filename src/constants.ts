@@ -1,20 +1,17 @@
-import { join } from "@std/path";
-
 import DenoJson from "../deno.json" with { type: "json" };
 
 export const KV = await Deno.openKv();
 
-export const APP_NAME = "deno-mcp-template";
+export const APP_NAME = "redstone-mcp";
 export const APP_VERSION = DenoJson.version;
 
 export const DEFAULT_PORT = 3001;
 export const DEFAULT_HOSTNAME = "127.0.0.1";
 
 export const SESSION_ID_KEY = "Mcp-Session-Id";
-export const LAST_EVENT_ID_KEY = "Last-Event-Id";
 
-export const MEMORY_PATH_KEY = "MEMORY_FILE_PATH";
-export const MEMORY_FILE_PATH = join(import.meta.dirname ?? "", "memory.json");
+export const REDSTONE_GW_URL =
+  "https://oracle-gateway-2.a.redstone.finance/v2/data-packages/latest/redstone-primary-prod/show-metadata";
 
 export const HTTP_STATUS = {
   SUCCESS: 200,

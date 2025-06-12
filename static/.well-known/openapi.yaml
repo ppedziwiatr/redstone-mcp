@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
-  title: Deno MCP Template
-  description: A Model Context Protocol (MCP) server that provides persistent memory capabilities using a local knowledge graph, enabling LLMs to remember and retrieve information across interactions.
+  title: RedStone MCP Template
+  description: A Model Context Protocol (MCP) server that provides data feeds from RedStone Oracle
   version: 0.0.1
 servers:
   - url: http://localhost:3001
@@ -31,7 +31,7 @@ paths:
                     properties:
                       message:
                         type: string
-                        example: "deno-mcp-template running. See `/llms.txt` for machine-readable docs."
+                        example: "redstone-mcp running. See `/llms.txt` for machine-readable docs."
     post:
       summary: Send a JSON-RPC message to the MCP server
       tags:
@@ -163,54 +163,6 @@ components:
         - jsonrpc
         - id
         - error
-    EntityObject:
-      type: object
-      properties:
-        name:
-          type: string
-          description: The name of the entity
-        entityType:
-          type: string
-          description: The type of the entity
-        observations:
-          type: array
-          items:
-            type: string
-          description: An array of observation contents associated with the entity
-      required:
-        - name
-        - entityType
-        - observations
-    RelationObject:
-      type: object
-      properties:
-        from:
-          type: string
-          description: The name of the entity where the relation starts
-        to:
-          type: string
-          description: The name of the entity where the relation ends
-        relationType:
-          type: string
-          description: The type of the relation
-      required:
-        - from
-        - to
-        - relationType
-    KnowledgeGraphObject:
-      type: object
-      properties:
-        entities:
-          type: array
-          items:
-            $ref: '#/components/schemas/EntityObject'
-        relations:
-          type: array
-          items:
-            $ref: '#/components/schemas/RelationObject'
-      required:
-        - entities
-        - relations
     ErrorResponse:
       type: object
       properties:
@@ -218,3 +170,131 @@ components:
           type: string
       required:
         - error
+    TradeInfo:
+      type: object
+      properties:
+        bidPrice:
+          type: number
+          format: double
+          description: Current bid price
+          example: 253.12
+        askPrice:
+          type: number
+          format: double
+          description: Current ask price
+          example: 253.18
+        volumeInUsd:
+          type: number
+          format: double
+          description: Trading volume in USD
+          example: 4533158.148519999
+      required:
+        - volumeInUsd
+
+    SlippageInfo:
+        type: object
+        properties:
+          isSuccess:
+            type: boolean
+            description: Whether the slippage simulation was successful
+            example: true
+          slippageAsPercent:
+            type: string
+            description: Slippage percentage as string
+            example: "0.005309"
+          direction:
+            type: string
+            enum: [ buy, sell ]
+            description: Trade direction for slippage calculation
+            example: "buy"
+          simulationValueInUsd:
+            type: string
+            description: USD value used for slippage simulation
+            example: "20000"
+        required:
+          - isSuccess
+          - slippageAsPercent
+          - direction
+          - simulationValueInUsd
+
+    SourcePriceInfo:
+        type: object
+        properties:
+          sourceName:
+            type: string
+            description: Name of the price source (exchange or data provider)
+            example: "binance-usdt"
+          price:
+            type: number
+            format: double
+            description: Price from this source
+            example: 253.10361369999998
+          tradeInfo:
+            $ref: '#/components/schemas/TradeInfo'
+          slippage:
+            type: array
+            items:
+              $ref: '#/components/schemas/SlippageInfo'
+            description: Slippage information for DEX sources
+        required:
+          - sourceName
+          - price
+
+    TokenPriceData:
+        type: object
+        properties:
+          dataFeedId:
+            type: string
+            description: Token or data feed identifier
+            example: "AAVE"
+          finalPrice:
+            type: number
+            format: double
+            description: Final aggregated price from the oracle
+            example: 252.985
+          timestamp:
+            type: integer
+            format: int64
+            description: Timestamp in milliseconds
+            example: 1749397130000
+          nodeLabel:
+            type: string
+            description: Oracle node label that provided this data
+            example: "morpheus-main"
+          signerAddress:
+            type: string
+            pattern: "^0x[a-fA-F0-9]{40}$"
+            description: Ethereum address of the data signer
+            example: "0x51Ce04Be4b3E32572C4Ec9135221d0691Ba7d202"
+          sources:
+            type: array
+            items:
+              $ref: '#/components/schemas/SourcePriceInfo'
+            description: Individual price sources with their data
+        required:
+          - dataFeedId
+          - finalPrice
+          - timestamp
+          - nodeLabel
+          - signerAddress
+          - sources
+
+    MappedRedStoneData:
+        type: object
+        additionalProperties:
+          $ref: '#/components/schemas/TokenPriceData'
+        description: Mapped RedStone data keyed by data feed ID
+        example:
+          AAVE:
+            dataFeedId: "AAVE"
+            finalPrice: 252.985
+            timestamp: 1749397130000
+            nodeLabel: "morpheus-main"
+            signerAddress: "0x51Ce04Be4b3E32572C4Ec9135221d0691Ba7d202"
+            sources:
+              - sourceName: "binance-usdt"
+                price: 253.10361369999998
+                tradeInfo:
+                  bidPrice: 253.10361369999998
+                  askPrice: 253.1136174
+                  volumeInUsd: 15661544.60705

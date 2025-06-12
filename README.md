@@ -47,7 +47,7 @@ Start the server using `deno task start`.
     "mcpServers": {
         "my-mcp-server": {
             "url": "http://localhost:3001/mcp"
-        },
+        }
     }
 }
 ```
@@ -59,7 +59,7 @@ Start the server using `deno task start`.
     "mcpServers": {
         "my-mcp-server": {
             "command": "deno run -A --unstable-kv absolute/path/to/main.ts"
-        },
+        }
     }
 }
 ```

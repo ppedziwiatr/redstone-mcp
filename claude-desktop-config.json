@@ -1,0 +1,7 @@
+{
+  "mcpServers": {
+    "redstone-gw": {
+      "command": "deno run -A --unstable-kv /Users/ppe/projects/redstone-mcp/main.ts"
+    }
+  }
+}

@@ -1,47 +1,5 @@
 #!/usr/bin/env -S deno run -A
 
-/**
- * @description A simple MCP server using Deno
- * @author P. Hughes <github@phugh.es>
- * @license MIT
- *
- * @example claude-desktop-config.json using the published MCP server from JSR
- * ```json
- * {
- *   "mcpServers": {
- *     "my-published-mcp-server": {
- *       "command": "deno run -A --unstable-kv jsr:@your-scope/your-package"
- *     },
- *   }
- * }
- * ```
- *
- * @example claude-desktop-config.json manually using the HTTP endpoint
- * Start the server using `deno task start` first.
- * ```json
- * {
- *   "mcpServers": {
- *     "my-mcp-server": {
- *       "url": "http://127.0.0.1:3001/mcp"
- *     },
- *   }
- * }
- * ```
- *
- * @example claude-desktop-config.json using a local MCP server
- * ```json
- * {
- *   "mcpServers": {
- *     "my-local-mcp-server": {
- *       "command": "deno run -A --unstable-kv absolute/path/to/main.ts"
- *     },
- *   }
- * }
- * ```
- *
- * @module
- */
-
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
 import { isInitializeRequest } from "@modelcontextprotocol/sdk/types.js";
@@ -50,7 +8,6 @@ import express from "express";
 import serveStatic from "serve-static";
 
 import { APP_NAME, HTTP_STATUS, RPC_ERROR_CODES, SESSION_ID_KEY } from "./src/constants.ts";
-import { InMemoryEventStore } from "./src/inMemoryEventStore.ts";
 import type { SessionRecord } from "./src/types.ts";
 
 // Load environment variables
@@ -70,6 +27,7 @@ import {
 if (import.meta.main) {
   // Map to store transports by session ID
   const transports: SessionRecord = {};
+  console.error("start");
 
   try {
     // Handle beforeunload event
@@ -127,7 +85,6 @@ if (import.meta.main) {
           transport = new StreamableHTTPServerTransport({
             sessionIdGenerator: () => crypto.randomUUID(),
             enableJsonResponse: true,
-            eventStore: new InMemoryEventStore(),
             onsessioninitialized: (sessionId) => {
               transports[sessionId] = transport;
             },
@@ -152,7 +109,7 @@ if (import.meta.main) {
         // Handle the request with existing transport - no need to reconnect
         await transport.handleRequest(req, res, req.body);
       } catch (error) {
-        console.error("Error handling MCP request:", error);
+        console.error(`Error handling MCP request: ${error}`);
         if (!res.headersSent) {
           res
             .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
