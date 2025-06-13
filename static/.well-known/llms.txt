@@ -10,52 +10,17 @@ The command to run the server, once Deno is installed, is `deno run -A jsr:@pped
 
 ## Overview
 
-- **Entities**: Represent primary nodes in the knowledge graph, each with:
-  - **Name**: Unique identifier.
-  - **Entity Type**: Classification (e.g., "person", "organization").
-  - **Observations**: List of factual statements about the entity.
-
-  *Example*:
-  ```json
-  {
-    "name": "John_Smith",
-    "entityType": "person",
-    "observations": ["Speaks fluent Spanish"]
-  }
-  ```
-
-- **Relations**: Define directed connections between entities, always stored in active voice to describe interactions or relationships.
-
-  *Example*:
-  ```json
-  {
-    "from": "John_Smith",
-    "to": "Anthropic",
-    "relationType": "works_at"
-  }
-  ```
-
-- **Observations**: Discrete pieces of information about an entity, stored as strings and attached to specific entities. They should be atomic, representing a single fact per observation.
-
-  *Example*:
-  ```json
-  {
-    "entity": "John_Smith",
-    "observation": "Speaks fluent Spanish"
-  }
-  ```
-
 ## Tools Provided
 
 - **Fetch Price Feeds**
   - *Description*: Fetches current prices feeds from RedStone Oracle Gateway.
   - *Returns*: An object containing current prices for different crypto tokens from different DEX and CEX sources.
 
-## Usage Guidelines
+- **Summarize indexed data**
+  - *Description*: Returns a summary of a currently indexed data from the RedStone Oracle Gateway
+  - *Returns*: An object containing information about indexed data.
 
-- Ensure entity names are unique and descriptive.
-- Maintain atomicity in observations to facilitate precise information retrieval.
-- Use active voice for relation descriptions to ensure clarity.
+## Usage Guidelines
 
 ## Description
 
@@ -67,4 +32,5 @@ The command to run the server, once Deno is installed, is `deno run -A jsr:@pped
 **Tools Provided:**
 
 - **Fetch Price Feeds**: Allows to fetch price feeds from RedStone Oracle Gateway
+- **Summarize indexed data**: Allows to fetch information about currently indexed data from RedStone Oracle Gateway
 

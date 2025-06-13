@@ -2,7 +2,7 @@
 
 import type { MappedRedStoneData, TokenPriceData } from "../redstone-mapper.ts";
 
-class TimeHelper {
+/*class TimeHelper {
   static now(): number {
     return Date.now();
   }
@@ -28,7 +28,7 @@ class TimeHelper {
   static formatTimestamp(timestamp: number): string {
     return new Date(timestamp).toISOString();
   }
-}
+}*/
 
 // ===== DATABASE INTERFACE =====
 
@@ -103,7 +103,7 @@ interface SourceQuality {
   };
 }
 
-interface QueryOptions {
+export interface QueryOptions {
   timeRange?: {
     start: number;
     end: number;
@@ -539,7 +539,7 @@ export class DenoKVPriceDatabase implements IPriceDatabase {
 // ===== USAGE EXAMPLE =====
 if (import.meta.main) {
   // Initialize database
-  const db = await DenoKVPriceDatabase.create("./price_data.db", 30);
+  const db = await DenoKVPriceDatabase.create("/Users/ppe/projects/redstone-mcp/redstone_data.db", 30);
   // let lastTimestamp = 0;
   // Simulate storing data every 10 seconds
   // setInterval(async () => {
@@ -560,8 +560,20 @@ if (import.meta.main) {
   const info = await db.getDatabaseInfo();
   console.log("Database info:", info);
 
+  const result = await db.getPriceData(
+      {
+        timeRange: {start: 0, end: 1749811590000},
+        dataFeedIds: ["AO"],
+        limit: undefined,
+        offset: undefined
+      }
+  );
+
+  console.log(result)
+
+
   // Analyze price trends for last 5 days
-  const trends = await db.analyzePriceTrends({
+  /*const trends = await db.analyzePriceTrends({
     timeRange: {
       start: TimeHelper.daysAgo(5),
       end: TimeHelper.now(),
@@ -581,7 +593,7 @@ if (import.meta.main) {
 
   // Prune old data
   const pruneResult = await db.pruneOldData();
-  console.log("Pruned:", pruneResult);
+  console.log("Pruned:", pruneResult);*/
 
   await db.close();
 }
