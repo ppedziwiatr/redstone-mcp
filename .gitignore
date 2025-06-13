@@ -138,6 +138,7 @@ dist
 
 .DS_Store
 
+redstone_data.db
 *.db
 *.db-shm
 *.db-wal

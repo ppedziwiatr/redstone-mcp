@@ -539,61 +539,13 @@ export class DenoKVPriceDatabase implements IPriceDatabase {
 // ===== USAGE EXAMPLE =====
 if (import.meta.main) {
   // Initialize database
-  const db = await DenoKVPriceDatabase.create("/Users/ppe/projects/redstone-mcp/redstone_data.db", 30);
-  // let lastTimestamp = 0;
-  // Simulate storing data every 10 seconds
-  // setInterval(async () => {
-  //   console.log("Load feeds");
-  //   const mappedData = await fetchPriceFeeds();
-  //   const newTimestamp = mappedData["ETH"]!.timestamp;
-  //   console.log(`Timestamps: current ${newTimestamp}, last ${lastTimestamp}`)
-  //   if (newTimestamp !== lastTimestamp) {
-  //     console.log("Storing data");
-  //   } else {
-  //     console.log(`Timestamps the same (current ${newTimestamp}, last ${lastTimestamp})`);
-  //   }
-  //   await db.storePriceData(mappedData);
-  //   lastTimestamp = newTimestamp;
-  // }, 11000);
-
-  // Get database info
-  const info = await db.getDatabaseInfo();
-  console.log("Database info:", info);
-
-  const result = await db.getPriceData(
-      {
-        timeRange: {start: 0, end: 1749811590000},
-        dataFeedIds: ["AO"],
-        limit: undefined,
-        offset: undefined
-      }
+  const db = await DenoKVPriceDatabase.create(
+    "/Users/ppe/projects/redstone-mcp/redstone_data.db",
+    30,
   );
-
-  console.log(result)
-
-
   // Analyze price trends for last 5 days
-  /*const trends = await db.analyzePriceTrends({
-    timeRange: {
-      start: TimeHelper.daysAgo(5),
-      end: TimeHelper.now(),
-    },
-    dataFeedIds: ["AAVE"],
-  });
+  const trends = await db.analyzePriceTrends();
   console.log("Price trends:", trends);
-
-  // Analyze source quality
-  const quality = await db.analyzeSourceQuality({
-    timeRange: {
-      start: TimeHelper.daysAgo(7),
-      end: TimeHelper.now(),
-    },
-  });
-  console.log("Source quality:", quality);
-
-  // Prune old data
-  const pruneResult = await db.pruneOldData();
-  console.log("Pruned:", pruneResult);*/
 
   await db.close();
 }

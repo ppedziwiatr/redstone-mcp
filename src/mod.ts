@@ -46,6 +46,24 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
         },
       },
       {
+        name: "analyze_source_quality",
+        description:
+          "Performs analysis of the Dex and Cex source based on data indexed from RedStone Oracle",
+        inputSchema: {
+          type: "object",
+          properties: {},
+        },
+      },
+      {
+        name: "analyze_price_trends",
+        description:
+          "Performs price trends analysis for crypto tokens based on data indexed from RedStone Oracle",
+        inputSchema: {
+          type: "object",
+          properties: {},
+        },
+      },
+      {
         name: "price_data",
         description:
           "Load current and historical price data with optional filtering by time range, tokens, and pagination support",
@@ -122,7 +140,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
   }
 
   switch (name) {
-   /* case "fetch_price_feeds":
+    /* case "fetch_price_feeds":
       return {
         content: [{
           type: "text",
@@ -141,6 +159,20 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         content: [{
           type: "text",
           text: JSON.stringify(await db.getPriceData(mapPriceDataArgs(args))),
+        }],
+      };
+    case "analyze_source_quality":
+      return {
+        content: [{
+          type: "text",
+          text: JSON.stringify(await db.analyzeSourceQuality()),
+        }],
+      };
+    case "analyze_price_trends":
+      return {
+        content: [{
+          type: "text",
+          text: JSON.stringify(await db.analyzePriceTrends()),
         }],
       };
     default:
