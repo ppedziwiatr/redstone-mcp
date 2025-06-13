@@ -28,7 +28,7 @@
         "dev": "deno run -A --watch main.ts",
         "ci": "deno task prep",
         "compile": "deno compile -A main.ts",
-        "compile-indexer": "deno compile -A redstone-indexer.ts"
+        "compile:indexer": "deno compile -A redstone-indexer.ts"
     },
     "compilerOptions": {
         "erasableSyntaxOnly": true,
