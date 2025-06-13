@@ -8,9 +8,8 @@
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
 import { CallToolRequestSchema, ListToolsRequestSchema } from "@modelcontextprotocol/sdk/types.js";
 
-import { APP_NAME, APP_VERSION, REDSTONE_GW_URL } from "./constants.ts";
-import { mapRedStoneData } from "./redstone-mapper.ts";
-import { type RedStoneOracleData } from "./redstone-types.ts";
+import { APP_NAME, APP_VERSION } from "./constants.ts";
+import { fetchPriceFeeds } from "./storage/redstone.ts";
 
 const server = new Server({
   name: APP_NAME,
@@ -36,16 +35,6 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
     ],
   };
 });
-
-async function fetchPriceFeeds() {
-  const response = await fetch(REDSTONE_GW_URL);
-  if (response.ok) {
-    const rawResult = await response.json() as RedStoneOracleData;
-    return mapRedStoneData(rawResult);
-  } else {
-    throw new Error(`Wrong response from RedStone ${response.status}: ${response.statusText}`);
-  }
-}
 
 server.setRequestHandler(CallToolRequestSchema, async (request) => {
   const { name, arguments: args } = request.params;

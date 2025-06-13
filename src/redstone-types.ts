@@ -1,5 +1,5 @@
 // Trade information for exchange data
-interface TradeInfo {
+export interface TradeInfo {
   bidPrice?: number;
   askPrice?: number;
   volumeInUsd: number;

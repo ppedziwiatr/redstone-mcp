@@ -1,54 +1,8 @@
 // Trade information for exchange data
-import { type SlippageInfo } from "./redstone-types.ts";
-
-interface TradeInfo {
-  bidPrice?: number;
-  askPrice?: number;
-  volumeInUsd: number;
-}
-
-// Source metadata for different exchanges/sources
-interface SourceMetadata {
-  [key: string]: {
-    tradeInfo?: TradeInfo;
-    value: string;
-    slippage?: SlippageInfo[];
-  };
-}
-
-// Metadata for each data point
-interface DataPointMetadata {
-  value: string;
-  sourceMetadata: SourceMetadata;
-  nodeLabel: string;
-}
-
-// Individual data point within a data package
-interface DataPoint {
-  dataFeedId: string;
-  value: number;
-  metadata: DataPointMetadata;
-}
-
-// Individual data package with signature and data
-interface DataPackage {
-  timestampMilliseconds: number;
-  signature: string;
-  isSignatureValid: boolean;
-  dataPoints: DataPoint[];
-  dataServiceId: string;
-  dataPackageId: string;
-  signerAddress: string;
-  dataFeedId: string;
-}
-
-// Root structure containing all data feeds
-interface RedStoneOracleData {
-  [dataFeedId: string]: DataPackage[];
-}
+import { type RedStoneOracleData, type SlippageInfo, type TradeInfo } from "./redstone-types.ts";
 
 // Mapped source price information
-interface SourcePriceInfo {
+export interface SourcePriceInfo {
   sourceName: string;
   price: number;
   tradeInfo?: TradeInfo;
@@ -56,7 +10,7 @@ interface SourcePriceInfo {
 }
 
 // Final mapped result for a token
-interface TokenPriceData {
+export interface TokenPriceData {
   dataFeedId: string;
   finalPrice: number;
   timestamp: number;
@@ -66,7 +20,7 @@ interface TokenPriceData {
 }
 
 // Result type for the mapping function
-interface MappedRedStoneData {
+export interface MappedRedStoneData {
   [dataFeedId: string]: TokenPriceData;
 }
 
@@ -77,7 +31,7 @@ interface MappedRedStoneData {
  * @returns Mapped data with final prices and source breakdown
  */
 export function mapRedStoneData(
-  rawData: RedStoneOracleData
+  rawData: RedStoneOracleData,
 ): MappedRedStoneData {
   const result: MappedRedStoneData = {};
 
