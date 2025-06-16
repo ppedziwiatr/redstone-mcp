@@ -2,6 +2,9 @@
 
 ### Hot to run
 
+#### Claude Desktop
+Install Claude Desktop - https://claude.ai/download
+
 #### Indexer
 1. in the `redstone-mcp` dir create .env file with `REDSTONE_MCP_DB_PATH` absolute path to the database file (e.g. `/Users/ppe/projects/redstone-mcp/redstone_data.db`)
 2. `deno task compile:indexer`
