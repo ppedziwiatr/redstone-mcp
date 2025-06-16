@@ -21,10 +21,7 @@ const server = new Server({
   },
 });
 
-const db = await DenoKVPriceDatabase.create(
-  "/Users/ppe/projects/redstone-mcp/redstone_data.db",
-  30,
-);
+const db = await DenoKVPriceDatabase.create(30);
 
 server.setRequestHandler(ListToolsRequestSchema, async () => {
   return {
@@ -45,7 +42,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
           properties: {},
         },
       },
-      {
+/*      {
         name: "analyze_source_quality",
         description:
           "Performs analysis of the Dex and Cex source based on data indexed from RedStone Oracle",
@@ -62,7 +59,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
           type: "object",
           properties: {},
         },
-      },
+      },*/
       {
         name: "price_data",
         description:
@@ -161,7 +158,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           text: JSON.stringify(await db.getPriceData(mapPriceDataArgs(args))),
         }],
       };
-    case "analyze_source_quality":
+    /*case "analyze_source_quality":
       return {
         content: [{
           type: "text",
@@ -174,7 +171,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           type: "text",
           text: JSON.stringify(await db.analyzePriceTrends()),
         }],
-      };
+      };*/
     default:
       throw new Error(`Unknown tool: ${name}`);
   }
