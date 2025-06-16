@@ -27,7 +27,8 @@ Install Claude Desktop - https://claude.ai/download
   }
 }
 ```
-Remember to change `command` and `env.REDSTONE_MCP_DB_PATH` to proper paths!
+Remember to change `command` and `env.REDSTONE_MCP_DB_PATH` to proper paths!  
+
 5. Close Claude Desktop
 6. Open Claude Desktop - it should start without any errors
 7. Verify the configuration in Settings -> Developer (the `redstone-mcp` should be
