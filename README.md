@@ -33,5 +33,5 @@ Remember to change `command` and `env.REDSTONE_MCP_DB_PATH` to proper paths!
 6. Open Claude Desktop - it should start without any errors
 7. Verify the configuration in Settings -> Developer (the `redstone-mcp` should be
 now on the list of the MCP servers)
-8. Check some example promprt (e.g. `Analyze price difference between sources for AAVE`)
+8. Check some example promprt (e.g. `Show me summary of RedStone data`, `Analyze price difference between sources for AAVE`)
 

@@ -63,7 +63,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
       {
         name: "price_data",
         description:
-          "Load current and historical price data with optional filtering by time range, tokens, and pagination support",
+          "Load current and historical price data with optional filtering by time range, tokens, and pagination support. Can be used to analyze price trends, sources quality, arbitrage opportunities",
         inputSchema: {
           type: "object",
           properties: {
