@@ -153,8 +153,13 @@ export class DenoKVPriceDatabase implements IPriceDatabase {
     this.defaultRetentionMs = retentionDays * 24 * 60 * 60 * 1000;
   }
 
-  static async create(path?: string, retentionDays: number = 30): Promise<DenoKVPriceDatabase> {
-    const kv = await Deno.openKv(path);
+  static async create(retentionDays: number = 30): Promise<DenoKVPriceDatabase> {
+    // "/Users/ppe/projects/redstone-mcp/redstone_data.db"
+    const databasePath = Deno.env.get("REDSTONE_MCP_DB_PATH");
+    if (!databasePath) {
+      throw new Error("REDSTONE_MCP_DB_PATH env not set");
+    }
+    const kv = await Deno.openKv(databasePath);
     return new DenoKVPriceDatabase(kv, retentionDays);
   }
 
@@ -539,10 +544,7 @@ export class DenoKVPriceDatabase implements IPriceDatabase {
 // ===== USAGE EXAMPLE =====
 if (import.meta.main) {
   // Initialize database
-  const db = await DenoKVPriceDatabase.create(
-    "/Users/ppe/projects/redstone-mcp/redstone_data.db",
-    30,
-  );
+  const db = await DenoKVPriceDatabase.create(30);
   // Analyze price trends for last 5 days
   const trends = await db.analyzePriceTrends();
   console.log("Price trends:", trends);

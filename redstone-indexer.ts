@@ -1,3 +1,4 @@
+import "https://deno.land/std/dotenv/load.ts";
 import {DenoKVPriceDatabase} from "./src/storage/kv-storage.ts";
 import {fetchPriceFeeds} from "./src/storage/redstone.ts";
 
@@ -11,7 +12,7 @@ if (import.meta.main) {
         Deno.exit(0);
     });
 
-    const db = await DenoKVPriceDatabase.create("./redstone_data.db", 30);
+    const db = await DenoKVPriceDatabase.create(30);
     let lastTimestamp = 0;
 
     setInterval(async () => {
