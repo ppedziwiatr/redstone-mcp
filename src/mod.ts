@@ -42,7 +42,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
           properties: {},
         },
       },
-/*      {
+      /*      {
         name: "analyze_source_quality",
         description:
           "Performs analysis of the Dex and Cex source based on data indexed from RedStone Oracle",

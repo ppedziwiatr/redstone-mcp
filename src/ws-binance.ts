@@ -1,13 +1,13 @@
 export interface TradeData {
-  e: string;      // Event type
-  E: number;      // Event time
-  s: string;      // Symbol
-  t: number;      // Trade ID
-  p: string;      // Price
-  q: string;      // Quantity
-  T: number;      // Trade time
-  m: boolean;     // Is the buyer the market maker?
-  M: boolean;     // Ignore
+  e: string; // Event type
+  E: number; // Event time
+  s: string; // Symbol
+  t: number; // Trade ID
+  p: string; // Price
+  q: string; // Quantity
+  T: number; // Trade time
+  m: boolean; // Is the buyer the market maker?
+  M: boolean; // Ignore
 }
 
 class BinanceWebSocketClient {
@@ -18,7 +18,7 @@ class BinanceWebSocketClient {
   private reconnectAttempts = 0;
   private readonly maxReconnectAttempts = 5;
   private readonly reconnectDelay = 5000; // 5 seconds
-  private readonly streams = ["btcusdt@trade","ethusdt@trade","usdcusdt@trade"];
+  private readonly streams = ["btcusdt@trade", "ethusdt@trade", "usdcusdt@trade"];
   private kv: Deno.Kv | null = null;
 
   constructor() {
@@ -71,10 +71,11 @@ class BinanceWebSocketClient {
     this.isConnected = false;
     this.cleanup();
 
-    // Attempt to reconnect
     if (this.reconnectAttempts < this.maxReconnectAttempts) {
       this.reconnectAttempts++;
-      console.log(`Attempting to reconnect (${this.reconnectAttempts}/${this.maxReconnectAttempts}) in ${this.reconnectDelay}ms...`);
+      console.log(
+        `Attempting to reconnect (${this.reconnectAttempts}/${this.maxReconnectAttempts}) in ${this.reconnectDelay}ms...`,
+      );
       setTimeout(() => this.connect(), this.reconnectDelay);
     } else {
       console.log("Max reconnection attempts reached. Please restart manually.");
@@ -92,7 +93,6 @@ class BinanceWebSocketClient {
     const quantity = parseFloat(trade.q);
     const volume = price * quantity;
 
-    // Save to Deno KV database
     this.saveTradeToKV(trade, receivedAt).catch(console.error);
 
     console.log(`
@@ -103,7 +103,7 @@ class BinanceWebSocketClient {
 💰 Price: $${price.toFixed(8)}
 📊 Quantity: ${quantity.toFixed(8)}
 💵 Volume: $${volume.toFixed(2)}
-${trade.m ? '🔴 Market Sell' : '🟢 Market Buy'}
+${trade.m ? "🔴 Market Sell" : "🟢 Market Buy"}
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
     `);
   }
@@ -115,16 +115,14 @@ ${trade.m ? '🔴 Market Sell' : '🟢 Market Buy'}
     }
 
     try {
-      // Use Trade ID as the key with symbol prefix for better organization
       const key = ["trades", trade.t];
 
-      // Add metadata for easier querying
       const tradeRecord = {
         ...trade,
         receivedAt: receivedAt,
         priceFloat: parseFloat(trade.p),
         quantityFloat: parseFloat(trade.q),
-        volumeUSD: parseFloat(trade.p) * parseFloat(trade.q)
+        volumeUSD: parseFloat(trade.p) * parseFloat(trade.q),
       };
 
       await this.kv.set(key, tradeRecord);
@@ -158,7 +156,6 @@ ${trade.m ? '🔴 Market Sell' : '🟢 Market Buy'}
     return this.isConnected && this.ws?.readyState === WebSocket.OPEN;
   }
 
-  // Method to subscribe to additional streams after connection
   public subscribe(streams: string[]): void {
     if (!this.isSocketConnected()) {
       console.error("WebSocket is not connected");
@@ -168,14 +165,13 @@ ${trade.m ? '🔴 Market Sell' : '🟢 Market Buy'}
     const subscribeMessage = {
       method: "SUBSCRIBE",
       params: streams,
-      id: Date.now()
+      id: Date.now(),
     };
 
     this.ws!.send(JSON.stringify(subscribeMessage));
     console.log(`Subscribed to streams: ${streams.join(", ")}`);
   }
 
-  // Method to unsubscribe from streams
   public unsubscribe(streams: string[]): void {
     if (!this.isSocketConnected()) {
       console.error("WebSocket is not connected");
@@ -185,7 +181,7 @@ ${trade.m ? '🔴 Market Sell' : '🟢 Market Buy'}
     const unsubscribeMessage = {
       method: "UNSUBSCRIBE",
       params: streams,
-      id: Date.now()
+      id: Date.now(),
     };
 
     this.ws!.send(JSON.stringify(unsubscribeMessage));
@@ -209,14 +205,14 @@ async function main() {
   Deno.addSignalListener("SIGTERM", handleShutdown);
 
   // Connect to the WebSocket
-  client.connect();
+  await client.connect();
 
   // Keep the process running
   console.log("🚀 Binance WebSocket client started. Press Ctrl+C to stop.");
 
   // Keep the process alive
   while (true) {
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    await new Promise((resolve) => setTimeout(resolve, 1000));
   }
 }
 
