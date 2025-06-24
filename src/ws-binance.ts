@@ -18,7 +18,8 @@ class BinanceWebSocketClient {
   private reconnectAttempts = 0;
   private readonly maxReconnectAttempts = 5;
   private readonly reconnectDelay = 5000; // 5 seconds
-  private readonly streams = ["btcusdt@trade", "ethusdt@trade", "usdcusdt@trade"];
+  // private readonly streams = ["btcusdt@trade", "ethusdt@trade", "usdcusdt@trade"];
+  private readonly streams = ["ethusdt@trade"];
   private kv: Deno.Kv | null = null;
 
   constructor() {
@@ -103,6 +104,7 @@ class BinanceWebSocketClient {
 💰 Price: $${price.toFixed(8)}
 📊 Quantity: ${quantity.toFixed(8)}
 💵 Volume: $${volume.toFixed(2)}
+⏰ Received delay: ${receivedAt - trade.T}ms
 ${trade.m ? "🔴 Market Sell" : "🟢 Market Buy"}
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
     `);
@@ -190,7 +192,7 @@ ${trade.m ? "🔴 Market Sell" : "🟢 Market Buy"}
 }
 
 // Example usage
-async function main() {
+async function mainWs() {
   const client = new BinanceWebSocketClient();
 
   // Handle graceful shutdown
@@ -218,7 +220,7 @@ async function main() {
 
 // Run the main function
 if (import.meta.main) {
-  main().catch(console.error);
+  mainWs().catch(console.error);
 }
 
-export { BinanceWebSocketClient };
+export { BinanceWebSocketClient, mainWs };

@@ -140,5 +140,6 @@ dist
 
 redstone_data.db
 *.db
-*.db-shm
+*.db-shm    
 *.db-wal
+*.pem

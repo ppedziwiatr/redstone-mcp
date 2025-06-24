@@ -1,6 +1,6 @@
 import { type TradeData } from "./ws-binance.ts";
 
-interface ExtendedTradeData extends TradeData {
+export interface ExtendedTradeData extends TradeData {
   receivedAt?: number;
   priceFloat?: number;
   quantityFloat?: number;
