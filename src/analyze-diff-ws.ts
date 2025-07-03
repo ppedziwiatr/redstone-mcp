@@ -1,15 +1,4 @@
-export interface TradeData {
-  e: string; // Event type
-  E: number; // Event time
-  s: string; // Symbol
-  t: number; // Trade ID
-  p: string; // Price
-  q: string; // Quantity
-  T: number; // Trade time
-  m: boolean; // Is the buyer the market maker?
-  M: boolean; // Ignore
-  receivedAt: number; // received timestamp
-}
+import {ExtendedTradeData} from "./ws-binance-query.ts";
 
 interface MatchedTrade {
   tradeId: string;
@@ -35,15 +24,15 @@ interface DifferenceStats {
   };
 }
 
-async function loadTradesFromDb(kv: Deno.Kv): Promise<Map<string, TradeData>> {
-  const trades = new Map<string, TradeData>();
+async function loadTradesFromDb(kv: Deno.Kv): Promise<Map<string, ExtendedTradeData>> {
+  const trades = new Map<string, ExtendedTradeData>();
 
   // Iterate through all entries in the first database
   // Assuming trades are stored with keys like ["trades", tradeId] or similar
   const iter = kv.list({ prefix: ["trades"] });
 
   for await (const entry of iter) {
-    const trade = entry.value as TradeData;
+    const trade = entry.value as ExtendedTradeData;
     trades.set(trade.t.toString(), trade);
   }
 
@@ -51,8 +40,8 @@ async function loadTradesFromDb(kv: Deno.Kv): Promise<Map<string, TradeData>> {
 }
 
 function matchTrades(
-  tardisTrades: Map<string, TradeData>,
-  db2Trades: Map<string, TradeData>,
+  tardisTrades: Map<string, ExtendedTradeData>,
+  db2Trades: Map<string, ExtendedTradeData>,
 ): MatchedTrade[] {
   const matches: MatchedTrade[] = [];
 
@@ -63,15 +52,12 @@ function matchTrades(
       matches.push({
         tradeId,
         symbol: tardisTrade.s,
-        db1ReceivedAt: tardisTrade.receivedAt,
-        db2ReceivedAt: wsTrade.receivedAt,
-        timeDifference: wsTrade.receivedAt - tardisTrade.receivedAt,
+        db1ReceivedAt: tardisTrade.receivedAt!,
+        db2ReceivedAt: wsTrade.receivedAt!,
+        timeDifference: wsTrade.receivedAt! - tardisTrade.receivedAt!,
       });
     }
   }
-
-  // binance - tardis
-  // 80-100 - -20
 
   return matches;
 }
@@ -123,11 +109,17 @@ function calculateStats(differences: number[]): DifferenceStats {
   };
 }
 
-function formatDuration(ms: number): string {
-  const abs = Math.abs(ms);
-  if (abs < 1000) { return `${ms}ms`; }
-  if (abs < 60000) { return `${(ms / 1000).toFixed(2)}s`; }
-  return `${(ms / 60000).toFixed(2)}min`;
+function formatDuration(us: number): string {
+  const abs = Math.abs(us);
+  if (abs < 1000) {
+    return `${us}µs`; // Microseconds
+  } else if (abs < 1_000_000) {
+    return `${(us / 1000).toFixed(2)}ms`; // Milliseconds
+  } else if (abs < 60_000_000) {
+    return `${(us / 1_000_000).toFixed(2)}s`; // Seconds
+  } else {
+    return `${(us / 60_000_000).toFixed(2)}min`; // Minutes
+  }
 }
 
 function printResults(matches: MatchedTrade[], stats: DifferenceStats) {
