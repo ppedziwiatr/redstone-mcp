@@ -30,7 +30,7 @@ class TardisClient {
       // https://github.com/tardis-dev/tardis-node/blob/master/src/consts.ts#L1
       exchange: "binance",
       filters: [
-        { channel: "trade", symbols: ["btcusdt"] },
+        { channel: "trade", symbols: ["ethusdt"] },
       ],
     });
   }
