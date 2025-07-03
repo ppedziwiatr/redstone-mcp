@@ -1,4 +1,4 @@
-import {nowMicros} from "./tardis.ts";
+import { nowMicros } from "./tardis.ts";
 
 export interface TradeData {
   e: string; // Event type

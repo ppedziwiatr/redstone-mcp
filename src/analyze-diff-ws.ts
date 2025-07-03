@@ -1,4 +1,4 @@
-import {ExtendedTradeData} from "./ws-binance-query.ts";
+import { type ExtendedTradeData } from "./ws-binance-query.ts";
 
 interface MatchedTrade {
   tradeId: string;
