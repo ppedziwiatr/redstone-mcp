@@ -20,7 +20,9 @@
         "@std/path": "jsr:@std/path@^1.1.0",
         "express": "npm:express@^5.1.0",
         "serve-static": "npm:serve-static@^2.2.0",
-        "zod": "npm:zod@^3.25.57"
+        "zod": "npm:zod@^3.25.57",
+        "tardis": "npm:tardis-dev@13.35.3"
+
     },
     "tasks": {
         "prep": "deno fmt && deno lint --fix && deno check main.ts",
@@ -33,7 +35,9 @@
         "compile:ws-db": "deno compile -A src/ws-binance-query.ts",
         "compile:ws-analyse": "deno compile -A src/ws-analyze-delays.ts",
         "compile:fix": "deno compile -A src/fix.ts",
-        "compile:diff": "deno compile -A src/analyze-diff.ts"
+        "compile:diff": "deno compile -A src/analyze-diff.ts",
+        "compile:diff-ws": "deno compile -A src/analyze-diff-ws.ts",
+        "compile:tardis": "deno compile -A src/tardis.ts"
     },
     "compilerOptions": {
         "erasableSyntaxOnly": true,

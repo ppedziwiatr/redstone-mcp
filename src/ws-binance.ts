@@ -22,12 +22,15 @@ class BinanceWebSocketClient {
   private readonly streams = ["ethusdt@trade"];
   private kv: Deno.Kv | null = null;
 
-  constructor() {
+  private readonly dbPath: string;
+
+  constructor(dbPath: string) {
+    this.dbPath = dbPath;
   }
 
   public async connect(): Promise<void> {
     try {
-      this.kv = await Deno.openKv("./trades.db");
+      this.kv = await Deno.openKv(this.dbPath);
       console.log("✅ Deno KV database connected");
     } catch (error) {
       console.error("❌ Failed to connect to Deno KV:", error);
@@ -192,8 +195,8 @@ ${trade.m ? "🔴 Market Sell" : "🟢 Market Buy"}
 }
 
 // Example usage
-async function mainWs() {
-  const client = new BinanceWebSocketClient();
+async function mainWs(dbPath: string) {
+  const client = new BinanceWebSocketClient(dbPath);
 
   // Handle graceful shutdown
   const handleShutdown = () => {
@@ -220,7 +223,8 @@ async function mainWs() {
 
 // Run the main function
 if (import.meta.main) {
-  mainWs().catch(console.error);
+  // mainWs("./trades-1.db").catch(console.error);
+  mainWs("./trades-2.db").catch(console.error);
 }
 
 export { BinanceWebSocketClient, mainWs };

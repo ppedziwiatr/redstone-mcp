@@ -384,7 +384,7 @@ class BinanceFIXClient {
     const mdReqID = fields.get(262);
     const numEntries = parseInt(fields.get(268) || "0");
 
-    if (numEntries === 0) return;
+    if (numEntries === 0) { return; }
 
     // Find which symbol this update is for
     let symbol = "";
@@ -395,7 +395,7 @@ class BinanceFIXClient {
       }
     }
 
-    if (!symbol) return;
+    if (!symbol) { return; }
 
     // Parse the repeating group entries
     const entries = this.parseRepeatingGroup(message, 268);
@@ -417,12 +417,14 @@ class BinanceFIXClient {
         };
         this.saveTradeToKV(trade, receivedAt).catch(console.error);
 
-        console.log(`Trade: ${trade.symbol} - Price: ${trade.price}, Qty: ${trade.quantity}, Time: ${trade.time}, ID: ${trade.tradeId}`);
+        console.log(
+          `Trade: ${trade.symbol} - Price: ${trade.price}, Qty: ${trade.quantity}, Time: ${trade.time}, ID: ${trade.tradeId}`,
+        );
       }
     }
   }
 
-// Parse repeating group from FIX message
+  // Parse repeating group from FIX message
   private parseRepeatingGroup(message: string, countTag: number): Array<Map<number, string>> {
     const parts = message.split(this.SOH);
     const entries: Array<Map<number, string>> = [];
@@ -433,13 +435,13 @@ class BinanceFIXClient {
 
     for (let i = 0; i < parts.length; i++) {
       if (parts[i]!.startsWith(`${countTag}=`)) {
-        count = parseInt(parts[i]!.split('=')[1]!);
+        count = parseInt(parts[i]!.split("=")[1]!);
         countIndex = i;
         break;
       }
     }
 
-    if (count === 0 || countIndex === -1) return entries;
+    if (count === 0 || countIndex === -1) { return entries; }
 
     // Define the repeating group structure for MarketDataIncrementalRefresh
     // First field of each entry is 279 (MDUpdateAction)
@@ -452,9 +454,9 @@ class BinanceFIXClient {
 
     for (let i = countIndex + 1; i < parts.length; i++) {
       const part = parts[i]!;
-      if (!part.includes('=')) continue;
+      if (!part.includes("=")) { continue; }
 
-      const [tagStr, value] = part.split('=', 2);
+      const [tagStr, value] = part.split("=", 2);
       const tag = parseInt(tagStr!);
 
       // Check if this is the start of a new entry
@@ -491,7 +493,7 @@ class BinanceFIXClient {
     return entries;
   }
 
-// Check if a tag indicates end of repeating group for MarketDataIncrementalRefresh
+  // Check if a tag indicates end of repeating group for MarketDataIncrementalRefresh
   private isEndOfRepeatingGroup(tag: number): boolean {
     // Tags that typically appear after the repeating group
     const endTags = [10, 893]; // Checksum, LastFragment
