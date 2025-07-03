@@ -5,7 +5,7 @@ interface MatchedTrade {
   symbol: string;
   db1ReceivedAt: number;
   db2ReceivedAt: number;
-  timeDifference: number; // db2 - db1 (positive means db2 received later)
+  timeDifference: number;
 }
 
 interface DifferenceStats {

@@ -15,7 +15,7 @@ export interface TradeData {
 class BinanceWebSocketClient {
   private ws: WebSocket | null = null;
   private pingInterval: number | null = null;
-  private readonly baseUrl = "wss://stream.binance.com:9443?timeUnit=microsecond";
+  private readonly baseUrl = "wss://stream.binance.com/stream?timeUnit=microsecond";
   private isConnected = false;
   private reconnectAttempts = 0;
   private readonly maxReconnectAttempts = 5;
@@ -39,7 +39,7 @@ class BinanceWebSocketClient {
       throw error;
     }
 
-    const url = `${this.baseUrl}/ws`;
+    const url = `${this.baseUrl}`;
     console.log(`Connecting to: ${url}`);
 
     this.ws = new WebSocket(url);
@@ -60,12 +60,12 @@ class BinanceWebSocketClient {
   private handleMessage(event: MessageEvent): void {
     const receivedAt = nowMicros();
     try {
-      const data = JSON.parse(event.data) as TradeData;
-      if (!data.e) {
+      const data = JSON.parse(event.data);
+      if (!data?.data?.e) {
         console.log("subscribed message", data);
         return;
       }
-      this.processTradeData(data, receivedAt).catch(console.error);
+      this.processTradeData(data.data, receivedAt).catch(console.error);
     } catch (error) {
       console.error("Error parsing message:", error);
       console.log("Raw message:", event.data);
@@ -93,26 +93,8 @@ class BinanceWebSocketClient {
   }
 
   private async processTradeData(trade: TradeData, receivedAt: number): Promise<void> {
-    // console.log(trade);
-    const timestamp = new Date(trade.E).toISOString();
-    const price = parseFloat(trade.p);
-    const quantity = parseFloat(trade.q);
-    const volume = price * quantity;
-
+    console.log(`🔄 Trade Event for ${trade.s}`);
     this.saveTradeToKV(trade, receivedAt).catch(console.error);
-
-    console.log(`
-🔄 Trade Event for ${trade.s}
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-⏰ Time: ${timestamp}
-🆔 Trade ID: ${trade.t}
-💰 Price: $${price.toFixed(8)}
-📊 Quantity: ${quantity.toFixed(8)}
-💵 Volume: $${volume.toFixed(2)}
-⏰ Received delay: ${receivedAt - trade.T}ms
-${trade.m ? "🔴 Market Sell" : "🟢 Market Buy"}
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-    `);
   }
 
   private async saveTradeToKV(trade: TradeData, receivedAt: number): Promise<void> {

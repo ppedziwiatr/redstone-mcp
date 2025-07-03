@@ -1,3 +1,6 @@
+import process from "node:process";
+process.env["DEBUG"] = "tardis-dev*";
+
 import { stream } from "tardis";
 import { type TradeData } from "./ws-binance.ts";
 
@@ -25,37 +28,11 @@ class TardisClient {
       console.error("❌ Failed to connect to Deno KV:", error);
       throw error;
     }
-
-    this.messages = stream({
-      // https://github.com/tardis-dev/tardis-node/blob/master/src/consts.ts#L1
-      exchange: "binance",
-      filters: [
-        { channel: "trade", symbols: ["ethusdt"] },
-      ],
-    });
   }
 
   private async processTradeData(trade: TradeData, receivedAt: number): Promise<void> {
-    // console.log(trade);
-    const timestamp = new Date(trade.E).toISOString();
-    const price = parseFloat(trade.p);
-    const quantity = parseFloat(trade.q);
-    const volume = price * quantity;
-
+    console.log(`🔄 Trade Event for ${trade.s}`);
     this.saveTradeToKV(trade, receivedAt).catch(console.error);
-
-    console.log(`
-🔄 Trade Event for ${trade.s}
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-⏰ Time: ${timestamp}
-🆔 Trade ID: ${trade.t}
-💰 Price: $${price.toFixed(8)}
-📊 Quantity: ${quantity.toFixed(8)}
-💵 Volume: $${volume.toFixed(2)}
-⏰ Received delay: ${receivedAt - trade.T}ms
-${trade.m ? "🔴 Market Sell" : "🟢 Market Buy"}
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-    `);
   }
 
   private async saveTradeToKV(trade: TradeData, receivedAt: number): Promise<void> {
@@ -84,6 +61,14 @@ ${trade.m ? "🔴 Market Sell" : "🟢 Market Buy"}
   }
 
   async handleMessages() {
+    this.messages = stream({
+      // https://github.com/tardis-dev/tardis-node/blob/master/src/consts.ts#L1
+      exchange: "binance",
+      filters: [
+        { channel: "trade", symbols: ["ethusdt"] },
+      ],
+    });
+    console.log("subscribed");
     for await (const message of this.messages!) {
       this.processTradeData(message.message.data, nowMicros()).catch(console.error);
     }
