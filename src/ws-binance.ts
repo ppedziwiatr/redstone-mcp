@@ -15,7 +15,7 @@ export interface TradeData {
 class BinanceWebSocketClient {
   private ws: WebSocket | null = null;
   private pingInterval: number | null = null;
-  private readonly baseUrl = "wss://stream.binance.com:9443";
+  private readonly baseUrl = "wss://stream.binance.com:9443?timeUnit=microsecond";
   private isConnected = false;
   private reconnectAttempts = 0;
   private readonly maxReconnectAttempts = 5;
