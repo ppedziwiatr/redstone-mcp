@@ -17,7 +17,7 @@ async function analyzeAllSaveDelays(db: string) {
         console.log({
           receivedAt: trade.receivedAt,
           tradeTime: tradeTime,
-        })
+        });
         if (String(tradeTime).length === 16) {
           tradeTime = Math.floor(tradeTime / 1000);
         }

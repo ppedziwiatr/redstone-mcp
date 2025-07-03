@@ -1,3 +1,5 @@
+import {nowMicros} from "./tardis.ts";
+
 export interface TradeData {
   e: string; // Event type
   E: number; // Event time
@@ -56,7 +58,7 @@ class BinanceWebSocketClient {
   }
 
   private handleMessage(event: MessageEvent): void {
-    const receivedAt = Date.now();
+    const receivedAt = nowMicros();
     try {
       const data = JSON.parse(event.data) as TradeData;
       if (!data.e) {
@@ -212,13 +214,11 @@ async function mainWs(dbPath: string) {
   // Connect to the WebSocket
   await client.connect();
 
-  // Keep the process running
   console.log("🚀 Binance WebSocket client started. Press Ctrl+C to stop.");
 
-  // Keep the process alive
-  while (true) {
+  /*  while (true) {
     await new Promise((resolve) => setTimeout(resolve, 1000));
-  }
+  }*/
 }
 
 // Run the main function

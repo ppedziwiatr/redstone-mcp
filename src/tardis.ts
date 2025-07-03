@@ -1,16 +1,5 @@
 import { stream } from "tardis";
-
-export interface TradeData {
-  e: string; // Event type
-  E: number; // Event time
-  s: string; // Symbol
-  t: number; // Trade ID
-  p: string; // Price
-  q: string; // Quantity
-  T: number; // Trade time
-  m: boolean; // Is the buyer the market maker?
-  M: boolean; // Ignore
-}
+import { type TradeData } from "./ws-binance.ts";
 
 export function nowMicros(): number {
   return Math.floor(Number(Temporal.Now.instant().epochNanoseconds / 1000n));
@@ -20,7 +9,6 @@ class TardisClient {
   private messages:
     | AsyncIterableIterator<{ localTimestamp: Date; message: { stream: string; data: TradeData } }>
     | null = null;
-  //private readonly streams = ["ethusdt@trade"];
   private kv: Deno.Kv | null = null;
 
   private readonly dbPath: string;
@@ -30,7 +18,6 @@ class TardisClient {
   }
 
   public async connect(): Promise<void> {
-    console.log(nowMicros());
     try {
       this.kv = await Deno.openKv(this.dbPath);
       console.log("✅ Deno KV database connected");
@@ -98,8 +85,7 @@ ${trade.m ? "🔴 Market Sell" : "🟢 Market Buy"}
 
   async handleMessages() {
     for await (const message of this.messages!) {
-      console.log(message);
-      this.processTradeData(message.message.data, Date.now()).catch(console.error);
+      this.processTradeData(message.message.data, nowMicros()).catch(console.error);
     }
   }
 }
@@ -123,13 +109,12 @@ async function main(dbPath: string) {
 
   await client.handleMessages();
 
-  // Keep the process running
   console.log("🚀 Binance WebSocket client started. Press Ctrl+C to stop.");
 
   // Keep the process alive
-  while (true) {
+  /*  while (true) {
     await new Promise((resolve) => setTimeout(resolve, 1000));
-  }
+  }*/
 }
 
 // Run the main function
