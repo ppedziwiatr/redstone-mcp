@@ -1,80 +1,7 @@
 import { type ExtendedTradeData } from "./ws-binance-query.ts";
 
-async function findTradesWithSaveDelay(minDelayMs: number) {
-  const kv = await Deno.openKv("./trades.db");
-
-  try {
-    console.log(`🔍 Finding trades with received delay > ${minDelayMs}ms...\n`);
-
-    const delayedTrades: Array<ExtendedTradeData & { saveDelayMs: number }> = [];
-    const iter = kv.list({ prefix: ["trades"] });
-
-    let totalTrades = 0;
-    let tradesWithReceivedAt = 0;
-
-    for await (const entry of iter) {
-      const trade = entry.value as ExtendedTradeData;
-      totalTrades++;
-
-      if (trade.receivedAt) {
-        tradesWithReceivedAt++;
-        const tradeTime = trade.T;
-        const saveDelayMs = trade.receivedAt - tradeTime;
-
-        if (saveDelayMs > minDelayMs) {
-          delayedTrades.push({
-            ...trade,
-            saveDelayMs,
-          });
-        }
-      }
-    }
-
-    // Sort by delay (highest first)
-    delayedTrades.sort((a, b) => b.saveDelayMs - a.saveDelayMs);
-
-    console.log(`📊 Results:`);
-    console.log(`━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`);
-    console.log(`Total trades: ${totalTrades}`);
-    console.log(`Trades with receivedAt: ${tradesWithReceivedAt}`);
-    console.log(`Trades with delay > ${minDelayMs}ms: ${delayedTrades.length}`);
-
-    if (delayedTrades.length > 0) {
-      console.log(`\n🐌 Delayed trades (showing first 20):`);
-      console.log(`━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`);
-
-      delayedTrades.slice(0, 20).forEach((trade, index) => {
-        const tradeTime = new Date(trade.T).toISOString();
-        const savedTime = new Date(trade.receivedAt!).toISOString();
-
-        console.log(`${index + 1}. Trade ${trade.t}`);
-        console.log(`   Trade time: ${tradeTime}`);
-        console.log(`   Saved time: ${savedTime}`);
-        console.log(`   Delay: ${trade.saveDelayMs}ms`);
-        console.log(`   Price: $${trade.p}, Quantity: ${trade.q}`);
-        console.log("");
-      });
-
-      // Statistics
-      const delays = delayedTrades.map((t) => t.saveDelayMs);
-      const avgDelay = delays.reduce((a, b) => a + b, 0) / delays.length;
-      const maxDelay = Math.max(...delays);
-      const minDelay = Math.min(...delays);
-
-      console.log(`📈 Delay Statistics:`);
-      console.log(`━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`);
-      console.log(`Average delay: ${avgDelay.toFixed(2)}ms (${(avgDelay / 1000).toFixed(3)}s)`);
-      console.log(`Maximum delay: ${maxDelay}ms (${(maxDelay / 1000).toFixed(3)}s)`);
-      console.log(`Minimum delay: ${minDelay}ms (${(minDelay / 1000).toFixed(3)}s)`);
-    }
-  } finally {
-    kv.close();
-  }
-}
-
-// General delay analysis function
-async function analyzeAllSaveDelays() {
-  const kv = await Deno.openKv("./trades.db");
+async function analyzeAllSaveDelays(db: string) {
+  const kv = await Deno.openKv(db);
 
   try {
     console.log(`📊 Analyzing all received delays...\n`);
@@ -87,6 +14,10 @@ async function analyzeAllSaveDelays() {
 
       if (trade.receivedAt) {
         const tradeTime = trade.T;
+        console.log({
+          receivedAt: trade.receivedAt,
+          tradeTime: tradeTime,
+        })
         const delayMs = trade.receivedAt - tradeTime;
         delays.push(delayMs);
       }
@@ -149,14 +80,9 @@ async function analyzeAllSaveDelays() {
 
 // Main function
 async function main() {
-  const command = Deno.args[0] || "analyze";
+  const db = Deno.args[0] || "./trades-1.db";
 
-  if (command === "find") {
-    const minDelayMs = parseInt(Deno.args[1]!) || 1000; // Default 1 second
-    await findTradesWithSaveDelay(minDelayMs);
-  } else if (command === "analyze") {
-    await analyzeAllSaveDelays();
-  }
+  await analyzeAllSaveDelays(db);
 }
 
 if (import.meta.main) {
