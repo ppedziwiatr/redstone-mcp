@@ -31,13 +31,13 @@
         "ci": "deno task prep",
         "compile": "deno compile -A main.ts",
         "compile:indexer": "deno compile -A redstone-indexer.ts",
-        "compile:ws": "deno compile -A src/ws-binance.ts",
+        "compile:ws": "deno compile -A --unstable-temporal src/ws-binance.ts",
         "compile:ws-db": "deno compile -A src/ws-binance-query.ts",
         "compile:ws-analyse": "deno compile -A src/ws-analyze-delays.ts",
         "compile:fix": "deno compile -A src/fix.ts",
         "compile:diff": "deno compile -A src/analyze-diff.ts",
         "compile:diff-ws": "deno compile -A src/analyze-diff-ws.ts",
-        "compile:tardis": "deno compile -A src/tardis.ts"
+        "compile:tardis": "deno compile -A --unstable-temporal src/tardis.ts"
     },
     "compilerOptions": {
         "erasableSyntaxOnly": true,

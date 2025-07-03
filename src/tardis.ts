@@ -1,4 +1,4 @@
-import { getExchangeDetails, stream } from "tardis";
+import { stream } from "tardis";
 
 export interface TradeData {
   e: string; // Event type
@@ -10,6 +10,10 @@ export interface TradeData {
   T: number; // Trade time
   m: boolean; // Is the buyer the market maker?
   M: boolean; // Ignore
+}
+
+export function nowMicros(): number {
+  return Math.floor(Number(Temporal.Now.instant().epochNanoseconds / 1000n));
 }
 
 class TardisClient {
@@ -26,6 +30,7 @@ class TardisClient {
   }
 
   public async connect(): Promise<void> {
+    console.log(nowMicros());
     try {
       this.kv = await Deno.openKv(this.dbPath);
       console.log("✅ Deno KV database connected");
@@ -112,7 +117,7 @@ async function main(dbPath: string) {
   Deno.addSignalListener("SIGINT", handleShutdown);
   Deno.addSignalListener("SIGTERM", handleShutdown);
 
-  console.log(await getExchangeDetails("binance"));
+  // console.log(await getExchangeDetails("binance"));
 
   await client.connect();
 
