@@ -21,7 +21,7 @@ class BinanceWebSocketClient {
   private readonly maxReconnectAttempts = 5;
   private readonly reconnectDelay = 5000; // 5 seconds
   // private readonly streams = ["btcusdt@trade", "ethusdt@trade", "usdcusdt@trade"];
-  private readonly streams = ["ethusdt@trade"];
+  private readonly streams = ["btcusdt@trade"];
   private kv: Deno.Kv | null = null;
 
   private readonly dbPath: string;
@@ -205,7 +205,6 @@ async function mainWs(dbPath: string) {
 
 // Run the main function
 if (import.meta.main) {
-  // mainWs("./trades-1.db").catch(console.error);
   mainWs("./trades-2.db").catch(console.error);
 }
 

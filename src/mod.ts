@@ -9,7 +9,8 @@ import { Server } from "@modelcontextprotocol/sdk/server/index.js";
 import { CallToolRequestSchema, ListToolsRequestSchema } from "@modelcontextprotocol/sdk/types.js";
 
 import { APP_NAME, APP_VERSION } from "./constants.ts";
-import { DenoKVPriceDatabase, type QueryOptions } from "./storage/kv-storage.ts";
+import { type QueryOptions } from "./storage/kv-storage.ts";
+import {SandboxService} from "./sandbox-service.ts";
 
 const server = new Server({
   name: APP_NAME,
@@ -21,52 +22,61 @@ const server = new Server({
   },
 });
 
-const db = await DenoKVPriceDatabase.create(30);
-
 server.setRequestHandler(ListToolsRequestSchema, async () => {
   return {
     tools: [
-      /*{
-        name: "fetch_price_feeds",
-        description: "Read current price feeds from RedStone Oracle",
-        inputSchema: {
-          type: "object",
-          properties: {},
-        },
-      },*/
       {
-        name: "price_data_summary",
-        description: "Shows the summary of the data indexed from RedStone Oracle",
-        inputSchema: {
-          type: "object",
-          properties: {},
-        },
-      },
-      /*      {
-        name: "analyze_source_quality",
+        name: "execute_js_on_redstone_data",
         description:
-          "Performs analysis of the Dex and Cex source based on data indexed from RedStone Oracle",
-        inputSchema: {
-          type: "object",
-          properties: {},
-        },
-      },
-      {
-        name: "analyze_price_trends",
-        description:
-          "Performs price trends analysis for crypto tokens based on data indexed from RedStone Oracle",
-        inputSchema: {
-          type: "object",
-          properties: {},
-        },
-      },*/
-      {
-        name: "price_data",
-        description:
-          "Load current and historical price data with optional filtering by time range, tokens, and pagination support. Can be used to analyze price trends, sources quality, arbitrage opportunities",
+          `Execute generated JavaScript code on RedStone prices data in a safe, sandbox environment (Deno Worker). 
+          Do not use any external libraries in the code, only built-ins. Do not use template literals.
+          Use async function fetchRedStone available in sandbox globals to load the data from RedStone Oracle. This function
+          fetchRedStone returns an array of TokenPriceData objects with the following structure:
+          
+          export interface TokenPriceData {
+            dataFeedId: string;
+            finalPrice: number;
+            timestamp: number;
+            nodeLabel: string;
+            signerAddress: string;
+            sources: SourcePriceInfo[];
+          }
+          
+          // Mapped source price information
+          export interface SourcePriceInfo {
+            sourceName: string;
+            price: number;
+            slippage?: SlippageInfo[];
+            tradeInfo?: TradeInfo;
+          }
+          
+          // Trade information for exchange data
+          export interface TradeInfo {
+            bidPrice?: number;
+            askPrice?: number;
+            volumeInUsd: number;
+          }
+          
+          // Slippage information for DEX data
+          export interface SlippageInfo {
+            isSuccess: boolean;
+            slippageAsPercent: string;
+            direction: string;
+            simulationValueInUsd: string;
+          }
+          
+          The whole data returned from the sandbox is in format {result: <result_of_your_analysis>, logs: <string_array>}
+          `,
+
+
+
         inputSchema: {
           type: "object",
           properties: {
+            code: {
+              type: "string",
+              description: "JavaScript code to run in sandbox",
+            },
             "startTime": {
               type: "integer",
               description: "Start timestamp in milliseconds for filtering data",
@@ -86,19 +96,6 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
               },
               uniqueItems: true,
             },
-            "limit": {
-              type: "integer",
-              description: "Maximum number of records to return",
-              minimum: 1,
-              maximum: 10000,
-              default: 10000,
-            },
-            "offset": {
-              type: "integer",
-              description: "Number of records to skip for pagination",
-              minimum: 0,
-              default: 0,
-            },
           },
           additionalProperties: false,
         },
@@ -107,26 +104,35 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
   };
 });
 
-function mapPriceDataArgs(args: Record<string, unknown>): QueryOptions {
+function mapArgs(args: Record<string, unknown>): ToolOptions {
   console.error("args:", args);
-  const result: QueryOptions = {
+  const queryOptions: QueryOptions = {
     timeRange: undefined,
     dataFeedIds: undefined,
     limit: undefined,
     offset: undefined,
-  };
+  }
   if (args["startTime"] || args["endTime"]) {
-    result.timeRange = {
+    queryOptions.timeRange = {
       start: args["startTime"] as number ?? 0,
       end: args["endTime"] as number ?? Date.now(),
     };
   }
   if (args["dataFeedIds"]) {
-    result.dataFeedIds = args["dataFeedIds"] as string[];
+    queryOptions.dataFeedIds = args["dataFeedIds"] as string[];
   }
+  const result: ToolOptions = {
+    code: args["code"] as string,
+    queryOptions
+  };
   console.error("Mapped args", result);
 
   return result;
+}
+
+export interface ToolOptions {
+  code: string,
+  queryOptions: QueryOptions,
 }
 
 server.setRequestHandler(CallToolRequestSchema, async (request) => {
@@ -137,41 +143,16 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
   }
 
   switch (name) {
-    /* case "fetch_price_feeds":
+    case "execute_js_on_redstone_data": {
+      const sandbox = new SandboxService();
+      const result = await sandbox.runCode(mapArgs(args));
       return {
         content: [{
           type: "text",
-          text: JSON.stringify(await fetchPriceFeeds()),
-        }],
-      };*/
-    case "price_data_summary":
-      return {
-        content: [{
-          type: "text",
-          text: JSON.stringify(await db.getDatabaseInfo()),
+          text: JSON.stringify(result),
         }],
       };
-    case "price_data":
-      return {
-        content: [{
-          type: "text",
-          text: JSON.stringify(await db.getPriceData(mapPriceDataArgs(args))),
-        }],
-      };
-    /*case "analyze_source_quality":
-      return {
-        content: [{
-          type: "text",
-          text: JSON.stringify(await db.analyzeSourceQuality()),
-        }],
-      };
-    case "analyze_price_trends":
-      return {
-        content: [{
-          type: "text",
-          text: JSON.stringify(await db.analyzePriceTrends()),
-        }],
-      };*/
+    }
     default:
       throw new Error(`Unknown tool: ${name}`);
   }
